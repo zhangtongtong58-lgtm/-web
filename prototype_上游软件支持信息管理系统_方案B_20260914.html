@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上游软件支持信息管理系统 · 演示原型（方案B）</title>
+<style>
+/* ============ 视觉规范：主色 #1a5cd6；字号阶梯 20/16/13/12；间距 4/8 倍数 ============ */
+:root{
+  --primary:#1a5cd6; --header:#10233f;
+  --green:#1a7f37; --blue:#1a5cd6; --purple:#8250df; --amber:#9a6700; --red:#d1242f;
+  --line:#e5e6eb; --text:#1f2329; --muted:#646a73; --bg:#f0f2f5;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;color:var(--text);background:var(--bg);min-width:1280px;}
+button{font-family:inherit;}
+a{color:var(--primary);}
+
+/* ---- 头部深蓝导航条 ---- */
+header.topbar{background:var(--header);color:#fff;height:48px;display:flex;align-items:center;gap:12px;padding:0 24px;position:sticky;top:0;z-index:50;}
+.topbar h1{font-size:16px;font-weight:600;}
+.topbar .env-tag{font-size:12px;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:0 8px;line-height:20px;}
+.topbar .topbar-note{font-size:12px;color:rgba(255,255,255,.72);margin-left:auto;}
+
+main{max-width:1560px;margin:0 auto;padding:16px 24px 24px;display:flex;flex-direction:column;gap:16px;}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;}
+.section-title{font-size:20px;font-weight:600;}
+
+/* ---- PRD-001 看板 ---- */
+.kanban{padding:16px 24px 24px;}
+.kanban-head{margin-bottom:16px;}
+.pie-wrap{display:flex;gap:16px;}
+.pie-card{flex:1;border:1px solid var(--line);border-radius:8px;padding:16px 24px;background:#fff;}
+.pie-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;}
+.pie-head h3{font-size:16px;font-weight:600;}
+.pie-total{font-size:12px;color:var(--muted);}
+.pie-body{display:flex;align-items:center;gap:24px;}
+.legend{list-style:none;display:flex;flex-direction:column;gap:8px;min-width:200px;}
+.legend li{display:flex;align-items:center;gap:8px;font-size:13px;}
+.legend .sw{width:12px;height:12px;border-radius:2px;flex:none;}
+.legend .num{margin-left:auto;font-weight:600;}
+.empty{padding:32px;text-align:center;color:var(--muted);}
+.empty-sm{padding:12px;text-align:center;color:var(--muted);font-size:12px;background:#fafbfc;border:1px dashed var(--line);border-radius:4px;}
+
+/* ---- PRD-003 检索区 ---- */
+.list-title{padding:16px 24px 0;}
+.search-bar{padding:16px 24px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;border-bottom:1px solid var(--line);}
+.search-field{display:flex;flex-direction:column;gap:4px;}
+.search-field label{font-size:12px;color:var(--muted);}
+.search-field input,.search-field select{width:180px;}
+.search-actions{display:flex;gap:8px;}
+
+input[type=text],input[type=date],select{height:28px;border:1px solid #c9cdd4;border-radius:4px;padding:0 8px;font-size:13px;background:#fff;color:var(--text);}
+input:focus,select:focus,button:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,92,214,.15);}
+
+/* ---- 工具栏 ---- */
+.toolbar{display:flex;align-items:center;gap:8px;padding:16px 24px;}
+.toolbar .sel-info{font-size:13px;color:var(--muted);margin-right:auto;}
+
+/* ---- 按钮 ---- */
+.btn{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 12px;border-radius:4px;border:1px solid #c9cdd4;background:#fff;color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;}
+.btn:hover{border-color:#a8adb8;background:#f7f8fa;}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+.btn-primary:hover{background:#164fc0;border-color:#164fc0;}
+.btn-sm{height:24px;padding:0 8px;font-size:12px;}
+.btn-danger{color:var(--red);border-color:#f0c4c8;}
+.btn-danger:hover{background:#fdf3f4;}
+.btn-danger-solid{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-danger-solid:hover{background:#b91f2c;}
+.link-btn{border:none;background:none;color:var(--primary);cursor:pointer;font-size:13px;font-weight:600;padding:0;}
+.link-btn:hover{text-decoration:underline;}
+.expand-btn{border:none;background:none;cursor:pointer;color:var(--muted);font-size:12px;width:20px;height:20px;border-radius:4px;line-height:1;}
+.expand-btn:hover{background:#eef0f3;color:var(--text);}
+
+/* ---- PRD-002 表格 ---- */
+.tbl-wrap{overflow-x:auto;padding:0 24px;}
+table.tbl{width:100%;border-collapse:collapse;}
+.tbl thead th{background:#fafbfc;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:8px 12px;white-space:nowrap;}
+.tbl tbody td{padding:8px 12px;border-bottom:1px solid #f0f1f3;vertical-align:middle;}
+tr.sw-row{background:#fff;}
+tr.sw-row:hover{background:#fafbfc;}
+.sw-name-cell{min-width:160px;}
+/* v1.6：当前等级列宽自适应，鲲鹏 3 个等级标签同行完整显示，不挤压换行 */
+.level-col{min-width:280px;white-space:nowrap;}
+.level-cell{white-space:nowrap;}
+.mono{font-family:Consolas,"Courier New",monospace;}
+.ops{display:flex;gap:4px;white-space:nowrap;}
+
+/* 第一层：主行软件名 字重600（见 .sw-name-cell / .link-btn） */
+/* 第二层：版本行 浅灰底卡片式 缩进24px */
+tr.sub-row>td{background:#fafbfc;padding:8px 12px 8px 24px;border-bottom:1px solid var(--line);}
+.ver-card{display:flex;align-items:center;gap:12px;background:#f5f7fa;border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin:4px 0;}
+.ver-card:hover{border-color:#a8adb8;background:#f0f3f8;}
+.ver-no{font-weight:700;font-size:13px;}
+.ver-meta{font-size:12px;color:var(--muted);}
+.ver-hint{font-size:12px;color:var(--muted);margin-left:auto;}
+.st-col{color:var(--green);font-weight:600;font-size:12px;}
+.st-uncol{color:var(--muted);font-size:12px;}
+
+/* 第三层：检查点区 更深底色 缩进48px */
+.cp-area{background:#eef1f5;border:1px solid #e0e4ea;border-radius:4px;margin:4px 0 8px 24px;padding:8px 12px;}
+.cp-legend{font-size:12px;color:var(--muted);padding:4px 0;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.cp-legend .dot{margin-left:8px;}
+.cp-group{margin:8px 0;}
+.cp-group-title{font-size:12px;font-weight:600;color:#3d4350;background:#e2e7ef;display:inline-block;padding:0 8px;border-radius:4px;margin-bottom:4px;line-height:20px;}
+.cp-row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:4px;background:#fff;border:1px solid var(--line);margin:4px 0;flex-wrap:wrap;}
+.cp-row:hover{background:#f7f9fc;border-color:#c9cdd4;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;}
+.dot-g{background:var(--green);}.dot-r{background:var(--red);}.dot-x{background:#9aa0a6;}
+.cp-result{font-size:12px;font-weight:600;min-width:40px;}
+.cp-result.ok{color:var(--green);}.cp-result.bad{color:var(--red);}.cp-result.na{color:var(--muted);}
+.cp-name{font-size:13px;}
+/* v1.6：检查点行内不再铺排来源链接，改为"来源 (N)"按钮打开只读来源弹窗 */
+.cp-src-btn{margin-left:auto;}
+.src-label{color:var(--muted);flex:none;font-weight:600;}
+.src-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:4px;margin-bottom:8px;background:#fafbfc;flex-wrap:wrap;}
+.src-item a{word-break:break-all;flex:1;min-width:200px;}
+.src-state{font-size:12px;}
+.src-state.on{color:var(--green);}
+.src-state.off{color:var(--muted);}
+
+/* 等级标签（配色与饼图一致） */
+.tag{display:inline-flex;align-items:center;font-size:12px;line-height:20px;padding:0 8px;border-radius:4px;border:1px solid;margin-right:4px;white-space:nowrap;}
+.tg-green{color:#1a7f37;background:#e8f5ec;border-color:#bfe3ca;}
+.tg-blue{color:#1a5cd6;background:#e8f0fd;border-color:#c2d6f7;}
+.tg-purple{color:#8250df;background:#f1eafd;border-color:#d9c7f5;}
+.tg-amber{color:#9a6700;background:#fdf3e0;border-color:#edd9b0;}
+.tg-red{color:#d1242f;background:#fdecee;border-color:#f5c2c7;}
+
+/* ---- 分页 ---- */
+.pager{display:flex;align-items:center;gap:8px;padding:12px 24px;}
+.ps-label{font-size:12px;color:var(--muted);}
+.page-info{font-size:13px;color:var(--muted);margin:0 8px;}
+
+/* ---- 弹窗：遮罩 flex 居中（垂直水平） ---- */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:100;}
+.overlay.hidden{display:none;}
+.modal{background:#fff;border-radius:8px;width:480px;max-width:calc(100vw - 64px);max-height:84vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+.modal-sm{width:420px;}
+.modal-md{width:560px;}
+.modal-lg{width:880px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 24px;border-bottom:1px solid var(--line);}
+.modal-head h3{font-size:16px;font-weight:600;}
+.modal-body{padding:16px 24px;overflow:auto;}
+.modal-foot{padding:12px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+.foot-spacer{flex:1;}
+.modal-close{border:none;background:none;font-size:16px;cursor:pointer;color:var(--muted);width:28px;height:28px;border-radius:4px;}
+.modal-close:hover{background:#f0f1f3;color:var(--text);}
+
+/* ---- 表单 ---- */
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.form-row input,.form-row select{width:100%;}
+.req::after{content:" *";color:var(--red);}
+.err-msg{color:var(--red);font-size:12px;margin-top:4px;min-height:16px;}
+.field-error input,.field-error select{border-color:var(--red)!important;box-shadow:0 0 0 2px rgba(209,36,47,.12)!important;}
+.field-note{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ---- PRD-005 编辑检查结果弹窗 ---- */
+.ver-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.ver-tab{height:28px;padding:0 12px;border:1px solid #c9cdd4;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;font-family:Consolas,"Courier New",monospace;}
+.ver-tab:hover{border-color:#a8adb8;}
+.ver-tab.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.rule-hint{font-size:12px;color:var(--muted);background:#f7f8fa;border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin-bottom:12px;}
+.res-meta{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.res-group{margin-bottom:16px;}
+.res-group-title{font-size:13px;font-weight:600;padding:4px 8px;background:#f0f3f8;border-radius:4px;margin-bottom:8px;}
+.res-cp{border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin-bottom:8px;background:#fff;}
+.res-cp-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.res-concl-label{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-left:auto;}
+.res-src{margin-top:8px;padding-left:16px;border-left:2px solid #eef0f3;display:flex;flex-direction:column;gap:4px;}
+.res-src-item{display:flex;align-items:center;gap:8px;font-size:12px;flex-wrap:wrap;}
+.res-src-item a{word-break:break-all;}
+.res-src-add{display:flex;gap:8px;margin-top:4px;align-items:center;}
+.res-src-add input{flex:1;min-width:240px;}
+.level-block{border-top:1px dashed var(--line);margin-top:16px;padding-top:16px;}
+.level-block h4{font-size:13px;margin-bottom:8px;}
+.level-opts{display:flex;gap:16px;flex-wrap:wrap;}
+.level-opts label{display:inline-flex;gap:4px;align-items:center;font-size:13px;cursor:pointer;}
+
+/* ---- 白名单/别名列表 ---- */
+.list-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:4px;margin-bottom:8px;background:#fafbfc;}
+.list-item .mono{font-weight:700;}
+.list-note{font-size:12px;color:var(--muted);}
+.list-item .btn{margin-left:auto;}
+.add-row{display:flex;gap:8px;margin-top:12px;}
+.add-row input{flex:1;}
+.modal-notice{font-size:12px;color:var(--muted);background:#f7f8fa;border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin-bottom:12px;}
+
+/* ---- 批量采集结果 ---- */
+.batch-item{display:flex;gap:8px;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:13px;border:1px solid var(--line);align-items:flex-start;}
+.batch-item.ok{background:#f2faf4;border-color:#cfe8d6;}
+.batch-item.fail{background:#fdf3f4;border-color:#f2cdd1;}
+.batch-name{font-weight:600;min-width:160px;flex:none;}
+
+/* ---- toast（右上角） ---- */
+#toast-wrap{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid;border-radius:4px;padding:8px 12px;box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:13px;max-width:380px;}
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+.toast.warn{border-left-color:var(--amber);}
+.toast .t-title{font-weight:600;flex:none;}
+.toast.success .t-title{color:var(--green);}
+.toast.error .t-title{color:var(--red);}
+.toast.warn .t-title{color:var(--amber);}
+
+/* ---- 悬浮窗（单个固定定位，随悬停显隐）；v1.6：文字可选中复制，鼠标移入浮窗保持显示 ---- */
+#tooltip{position:fixed;z-index:300;background:var(--header);color:#fff;font-size:12px;line-height:1.6;padding:8px 12px;border-radius:4px;max-width:320px;pointer-events:auto;user-select:text;display:none;box-shadow:0 4px 12px rgba(0,0,0,.25);}
+
+footer{max-width:1560px;margin:0 auto;padding:16px 24px 24px;font-size:12px;color:var(--muted);text-align:center;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>上游软件支持信息管理系统</h1>
+  <span class="env-tag">演示 Demo</span>
+  <span class="topbar-note">跟踪上游软件对鲲鹏（aarch64）/ 昇腾（NPU）的支持情况 · 数据为模拟数据</span>
+</header>
+
+<main>
+  <!-- ============ PRD-001 支持等级分布看板（仅标题/饼图/图例/总数，不含口径说明） ============ -->
+  <section class="card kanban" aria-labelledby="kanban-title">
+    <div class="kanban-head"><h2 id="kanban-title" class="section-title">支持等级分布</h2></div>
+    <div class="pie-wrap">
+      <div class="pie-card" id="pie-kp"></div>
+      <div class="pie-card" id="pie-as"></div>
+    </div>
+  </section>
+
+  <!-- ============ PRD-002 软件列表区（含检索/工具栏/三层子层级/分页） ============ -->
+  <section class="card" aria-labelledby="list-title">
+    <h2 id="list-title" class="section-title list-title">软件列表</h2>
+
+    <!-- 交互：检索条件变更后点击"查询"生效；"重置"清空条件并回到第 1 页（PRD-003） -->
+    <form class="search-bar" id="search-form">
+      <div class="search-field">
+        <label for="q-name">软件名</label>
+        <input type="text" id="q-name" placeholder="输入软件名，模糊匹配">
+      </div>
+      <div class="search-field">
+        <label for="q-domain">领域</label>
+        <select id="q-domain">
+          <option value="">全部领域</option>
+          <option value="鲲鹏">鲲鹏</option>
+          <option value="昇腾">昇腾</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label for="q-level">当前等级</label>
+        <select id="q-level"></select>
+      </div>
+      <div class="search-field">
+        <label for="q-family">项目族</label>
+        <select id="q-family"></select>
+      </div>
+      <div class="search-actions">
+        <button type="submit" class="btn btn-primary" id="btn-query">查询</button>
+        <button type="button" class="btn" id="btn-reset">重置</button>
+      </div>
+    </form>
+
+    <!-- 交互：勾选行后点"批量采集"；未勾选给出警告提示（PRD-006） -->
+    <div class="toolbar">
+      <span class="sel-info" id="sel-info">已勾选 0 条</span>
+      <button type="button" class="btn" id="btn-batch">批量采集</button>
+      <button type="button" class="btn btn-primary" id="btn-add">新增软件</button>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="tbl" aria-label="软件列表">
+        <thead>
+          <tr>
+            <th style="width:32px"><input type="checkbox" id="ck-all" aria-label="全选当前过滤结果"></th>
+            <th style="width:32px"></th>
+            <th class="sw-name-cell">软件名</th>
+            <th style="width:64px">领域</th>
+            <th style="width:110px">最新版本</th>
+            <th class="level-col">当前等级</th>
+            <th style="width:96px">最近评估</th>
+            <th style="width:272px">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- 交互：默认每页 20 条，可切换 10/20/50；上一页/下一页 + 页码信息 -->
+    <div class="pager">
+      <label class="ps-label" for="page-size">每页条数</label>
+      <select id="page-size">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+      </select>
+      <button type="button" class="btn btn-sm" id="pg-prev" aria-label="上一页">上一页</button>
+      <span class="page-info" id="page-info"></span>
+      <button type="button" class="btn btn-sm" id="pg-next" aria-label="下一页">下一页</button>
+    </div>
+  </section>
+</main>
+
+<footer>上游软件支持信息管理系统 · 演示原型（方案B：看板与列表同页） · 需求基准：PRD v1.6（2026-09-14） · 演示数据，非真实采集结果</footer>
+
+<!-- 悬浮窗：全局唯一，版本行悬停显示"规则"，检查点行悬停显示"判定依据" -->
+<div id="tooltip" role="tooltip"></div>
+<!-- toast 容器（右上角） -->
+<div id="toast-wrap" aria-live="polite"></div>
+
+<!-- ============ PRD-004 新增/编辑软件弹窗（屏幕垂直水平居中） ============ -->
+<div class="overlay hidden" id="ov-sw">
+  <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="sw-title">
+    <div class="modal-head">
+      <h3 id="sw-title">新增软件</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="sw-form" novalidate>
+        <div class="form-row" id="fr-name">
+          <label for="sw-name" class="req">软件名</label>
+          <input type="text" id="sw-name" placeholder="请输入软件名（全局唯一）">
+          <p class="err-msg" id="err-name"></p>
+        </div>
+        <div class="form-row" id="fr-domain">
+          <label for="sw-domain" class="req">领域</label>
+          <select id="sw-domain">
+            <option value="">请选择领域</option>
+            <option value="鲲鹏">鲲鹏</option>
+            <option value="昇腾">昇腾</option>
+          </select>
+          <p class="err-msg" id="err-domain"></p>
+          <p class="field-note" id="sw-domain-note" hidden>领域保存后不可变更（两领域的检查项与等级体系不同）</p>
+        </div>
+        <div class="form-row">
+          <label for="sw-family">项目族</label>
+          <select id="sw-family"></select>
+        </div>
+        <div class="form-row" id="fr-ver">
+          <label for="sw-ver" class="req">最新版本</label>
+          <input type="text" id="sw-ver" placeholder="如 v2.16.0">
+          <p class="err-msg" id="err-ver"></p>
+        </div>
+        <div class="form-row" id="fr-date">
+          <label for="sw-date" class="req">最近评估</label>
+          <input type="date" id="sw-date">
+          <p class="err-msg" id="err-date"></p>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <!-- 交互：编辑态删除软件需二次确认（PRD-004） -->
+      <button type="button" class="btn btn-danger-solid" id="btn-sw-delete" hidden>删除软件</button>
+      <span class="foot-spacer"></span>
+      <button type="button" class="btn" data-close>取消</button>
+      <button type="button" class="btn btn-primary" id="btn-sw-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PRD-005 编辑检查结果/来源弹窗 ============ -->
+<div class="overlay hidden" id="ov-res">
+  <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="res-title">
+    <div class="modal-head">
+      <h3 id="res-title">编辑检查结果/来源</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="ver-tabs" id="res-tabs" role="tablist" aria-label="版本切换"></div>
+      <div id="res-body"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-close>取消</button>
+      <button type="button" class="btn btn-primary" id="btn-res-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PRD-007 采集版本白名单弹窗 ============ -->
+<div class="overlay hidden" id="ov-wl">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wl-title">
+    <div class="modal-head">
+      <h3 id="wl-title">采集版本白名单</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-notice">白名单中的版本在采集成功后进入表格子层级（成为新版本行，含全部检查点），同时清空白名单。</p>
+      <div id="wl-list"></div>
+      <form class="add-row" id="wl-form">
+        <label for="wl-input" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">新增白名单版本号</label>
+        <input type="text" id="wl-input" placeholder="输入待采集版本号，如 v3.2.0">
+        <button type="submit" class="btn btn-primary" id="wl-add">新增</button>
+      </form>
+      <p class="err-msg" id="wl-err"></p>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close>关闭</button></div>
+  </div>
+</div>
+
+<!-- ============ PRD-008 增加别名弹窗 ============ -->
+<div class="overlay hidden" id="ov-alias">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="alias-title">
+    <div class="modal-head">
+      <h3 id="alias-title">增加别名</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-notice">别名仅用于 GitHub 检索，对本网站内容没有任何影响。</p>
+      <div id="alias-list"></div>
+      <form class="add-row" id="alias-form">
+        <label for="alias-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">新增别名</label>
+        <input type="text" id="alias-input" placeholder="输入别名，如 tf">
+        <button type="submit" class="btn btn-primary" id="alias-add">新增</button>
+      </form>
+      <p class="err-msg" id="alias-err"></p>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close>关闭</button></div>
+  </div>
+</div>
+
+<!-- ============ PRD-002（v1.6）来源弹窗：检查点级来源只读展示（来源：链接+启用/禁用），屏幕居中 ============ -->
+<div class="overlay hidden" id="ov-src">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="src-title">
+    <div class="modal-head">
+      <h3 id="src-title">来源</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body" id="src-body"></div>
+    <div class="modal-foot"><button type="button" class="btn" data-close>关闭</button></div>
+  </div>
+</div>
+
+<!-- ============ PRD-006 批量采集结果弹窗 ============ -->
+<div class="overlay hidden" id="ov-batch">
+  <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="batch-title">
+    <div class="modal-head">
+      <h3 id="batch-title">批量采集结果</h3>
+      <button type="button" class="modal-close" data-close aria-label="关闭弹窗">×</button>
+    </div>
+    <div class="modal-body" id="batch-body"></div>
+    <div class="modal-foot"><button type="button" class="btn btn-primary" data-close>关闭</button></div>
+  </div>
+</div>
+
+<!-- 通用二次确认弹窗（删除软件等危险操作） -->
+<div class="overlay hidden" id="ov-confirm">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="cf-title">
+    <div class="modal-head"><h3 id="cf-title">请确认</h3></div>
+    <div class="modal-body"><p id="cf-msg"></p></div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-close>取消</button>
+      <button type="button" class="btn btn-danger-solid" id="cf-ok">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================================================================
+ * 上游软件支持信息管理系统 · 演示原型（方案B）逻辑
+ * 需求编号标注：PRD-001 ~ PRD-008
+ * ================================================================ */
+
+/* ---------- 基础配置（领域/等级/检查项可配置，不硬编码；见 PRD 4.0） ---------- */
+const TODAY = '2026-09-14';
+const FAMILIES = ['AI框架族', '大数据计算族', '数据库族', '中间件族', '编译工具链族', '语言运行时族'];
+const LEVELS = {
+  '鲲鹏': ['上游支持', '三方仓库支持', 'openEuler集成', '不支持'],
+  '昇腾': ['原生支持', '基础支持', '新兴支持', '不支持']
+};
+const LEVEL_COLOR = {
+  '上游支持': '#1a7f37', '原生支持': '#1a7f37',
+  '三方仓库支持': '#1a5cd6', '基础支持': '#1a5cd6',
+  'openEuler集成': '#8250df',
+  '新兴支持': '#9a6700',
+  '不支持': '#d1242f'
+};
+const TAG_CLASS = {
+  '上游支持': 'tg-green', '原生支持': 'tg-green',
+  '三方仓库支持': 'tg-blue', '基础支持': 'tg-blue',
+  'openEuler集成': 'tg-purple', '新兴支持': 'tg-amber', '不支持': 'tg-red'
+};
+const TARGET_LEVELS = ['原生支持', '基础支持', '新兴支持'];
+/* 检查项体系：昇腾 3 项 7 检查点、鲲鹏 3 项 9 检查点（PRD 4.0） */
+const CHECK_ITEMS = {
+  '昇腾': [
+    { name: '昇腾CI集成', points: [
+      { name: '三方 CI 系统', type: 'passfail' },
+      { name: '上游 GitHub 昇腾 CI', type: 'passfail' }
+    ]},
+    { name: '快速开始和Examples验证', points: [
+      { name: 'Ascend-CI 仓 workflow（或者 TTFHW）', type: 'passfail' }
+    ]},
+    { name: '昇腾文档发布', points: [
+      { name: 'Ascend/docs 文档', type: 'exist' },
+      { name: '官网昇腾文档', type: 'exist' },
+      { name: 'README 昇腾说明', type: 'exist' },
+      { name: '仓库 docs/ 昇腾文档', type: 'exist' }
+    ]}
+  ],
+  '鲲鹏': [
+    { name: '上游支持', points: [
+      { name: '上游 ARM CI', type: 'exist' },
+      { name: '上游文档/README/Release Note 声明支持 ARM 架构', type: 'exist' },
+      { name: '上游发布 aarch64 格式软件制品', type: 'exist' }
+    ]},
+    { name: '三方仓库支持', points: [
+      { name: 'Bioconda 发布 aarch64 格式软件包', type: 'exist' },
+      { name: 'Bioconductor 发布 aarch64 格式软件包', type: 'exist' },
+      { name: 'PyPI 发布 aarch64 格式的 wheel', type: 'exist' }
+    ]},
+    { name: 'openEuler集成', points: [
+      { name: 'openEuler 集成并发布 RPM', type: 'exist' },
+      { name: 'openEuler 集成并发布容器镜像', type: 'exist' },
+      { name: 'openEuler 验证的 conda 支持', type: 'exist' }
+    ]}
+  ]
+};
+/* 判定依据模板（每个 < 150 字，按检查点名匹配正/反两种文案） */
+const BASIS = {
+  '三方 CI 系统': {
+    pos: '在三方 CI 系统中检测到昇腾 NPU 构建与测试任务，最近一次流水线构建状态为成功，日志包含 NPU 设备调度记录。',
+    neg: '未在三方 CI 系统中发现昇腾相关 CI 任务，或最近一次构建失败，无法确认 NPU 支持的持续可用性。'
+  },
+  '上游 GitHub 昇腾 CI': {
+    pos: '上游 GitHub 仓库中检测到昇腾 CI 工作流，最近一次运行通过，覆盖 NPU 上的构建与单元测试。',
+    neg: '上游 GitHub 仓库中未发现昇腾相关 CI 工作流，或最近一次运行失败，支持情况未得到持续验证。'
+  },
+  'Ascend-CI 仓 workflow（或者 TTFHW）': {
+    pos: 'Ascend-CI 仓库中检测到该软件的验证 workflow，快速开始与 Examples 执行通过，示例代码可在 NPU 正常运行。',
+    neg: 'Ascend-CI 仓库中未找到该软件的验证 workflow，或 Examples 执行失败，快速开始链路未通过验证。'
+  },
+  'Ascend/docs 文档': {
+    pos: 'Ascend/docs 仓库下检测到该软件的适配文档，包含安装与运行说明，文档更新于近 6 个月内。',
+    neg: 'Ascend/docs 仓库下未找到该软件的适配文档，文档覆盖缺失。'
+  },
+  '官网昇腾文档': {
+    pos: '昇腾官方文档站点已发布该软件的文档，包含安装部署与 NPU 运行说明，页面可正常访问。',
+    neg: '昇腾官方文档站点未发布该软件的相关文档，或文档页面无法访问。'
+  },
+  'README 昇腾说明': {
+    pos: '仓库 README 中检测到昇腾 NPU 支持说明，包含安装方式与使用注意事项。',
+    neg: '仓库 README 中未发现昇腾相关说明，用户无法从 README 获取 NPU 支持信息。'
+  },
+  '仓库 docs/ 昇腾文档': {
+    pos: '仓库 docs/ 目录中检测到昇腾适配文档，内容覆盖安装、配置与常见问题。',
+    neg: '仓库 docs/ 目录中未发现昇腾相关文档，仓内文档覆盖缺失。'
+  },
+  '上游 ARM CI': {
+    pos: '上游仓库 CI 中检测到 aarch64 架构构建任务，最近一次流水线构建状态为成功。',
+    neg: '上游仓库 CI 中未检测到 aarch64 架构构建任务，或最近一次构建失败。'
+  },
+  '上游文档/README/Release Note 声明支持 ARM 架构': {
+    pos: '上游文档、README 或 Release Note 中存在对 ARM/aarch64 架构支持的明确声明。',
+    neg: '上游文档、README 或 Release Note 中未发现对 ARM/aarch64 架构支持的明确声明。'
+  },
+  '上游发布 aarch64 格式软件制品': {
+    pos: '上游最近一次发布的制品中包含 aarch64 格式软件制品，已验证可正常下载。',
+    neg: '上游最近一次发布的制品中未包含 aarch64 格式软件制品，需用户自行源码编译。'
+  },
+  'Bioconda 发布 aarch64 格式软件包': {
+    pos: 'Bioconda 渠道已发布该软件的 aarch64 格式软件包，可通过 conda 直接安装。',
+    neg: 'Bioconda 渠道未发布该软件的 aarch64 格式软件包，或软件包已标记弃用。'
+  },
+  'Bioconductor 发布 aarch64 格式软件包': {
+    pos: 'Bioconductor 已发布该软件的 aarch64 格式软件包，可通过标准方式安装使用。',
+    neg: 'Bioconductor 未发布该软件的 aarch64 格式软件包，无法通过该渠道直接安装。'
+  },
+  'PyPI 发布 aarch64 格式的 wheel': {
+    pos: 'PyPI 已发布该软件的 aarch64 格式 wheel，pip 安装无需本地编译。',
+    neg: 'PyPI 未发布该软件的 aarch64 格式 wheel，pip 安装时需要源码编译。'
+  },
+  'openEuler 集成并发布 RPM': {
+    pos: '该软件已集成至 openEuler 社区，并发布 RPM 包，可通过 yum/dnf 直接安装。',
+    neg: '该软件未集成至 openEuler 社区，或尚未发布 RPM 包。'
+  },
+  'openEuler 集成并发布容器镜像': {
+    pos: '该软件已集成至 openEuler 社区，并发布容器镜像，可直接拉取使用。',
+    neg: '该软件已集成 openEuler 但未发布容器镜像，或镜像已停止更新。'
+  },
+  'openEuler 验证的 conda 支持': {
+    pos: 'openEuler 社区已完成该软件 conda 安装方式的验证，并发布验证结论。',
+    neg: 'openEuler 社区尚未完成该软件 conda 安装方式的验证，无公开验证结论。'
+  }
+};
+const FAIL_REASONS = [
+  '访问上游仓库超时，采集任务中止',
+  '上游来源触发限流，请稍后重试',
+  '上游 CI 配置文件解析失败，无法判定结论',
+  '网络波动导致来源页面获取失败'
+];
+
+/* ---------- 固定种子伪随机：保证刷新后演示数据稳定 ---------- */
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(20260914);
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = arr => arr[Math.floor(rnd() * arr.length)];
+const chance = p => rnd() < p;
+const riRt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pickRt = arr => arr[Math.floor(Math.random() * arr.length)];
+const SEEDED = { raw: rnd, pick, chance };
+const RUNTIME = { raw: Math.random, pick: pickRt, chance: p => Math.random() < p };
+
+/* ---------- 演示数据：50 条软件（25 昇腾 / 25 鲲鹏），固定种子生成 ---------- */
+const CATALOG = [
+  ['TensorFlow', '昇腾'], ['PyTorch', '昇腾'], ['vLLM', '昇腾'], ['MindSpore', '昇腾'],
+  ['ONNX Runtime', '昇腾'], ['Transformers', '昇腾'], ['DeepSpeed', '昇腾'], ['Megatron-LM', '昇腾'],
+  ['PaddlePaddle', '昇腾'], ['Horovod', '昇腾'], ['Triton Inference Server', '昇腾'],
+  ['OpenCV', '昇腾'], ['FFmpeg', '昇腾'], ['OpenBLAS', '昇腾'], ['oneDNN', '昇腾'], ['Eigen', '昇腾'],
+  ['XGBoost', '昇腾'], ['LightGBM', '昇腾'], ['Ray', '昇腾'], ['Apache Spark', '昇腾'],
+  ['MySQL', '昇腾'], ['Redis', '昇腾'], ['Nginx', '昇腾'], ['Kubernetes', '昇腾'], ['CMake', '昇腾'],
+  ['Apache Hadoop', '鲲鹏'], ['Apache Flink', '鲲鹏'], ['Apache Kafka', '鲲鹏'], ['PostgreSQL', '鲲鹏'],
+  ['MongoDB', '鲲鹏'], ['GCC', '鲲鹏'], ['LLVM', '鲲鹏'], ['Node.js', '鲲鹏'], ['Rust', '鲲鹏'],
+  ['Go', '鲲鹏'], ['OpenJDK', '鲲鹏'], ['Python', '鲲鹏'], ['PHP', '鲲鹏'], ['Ruby', '鲲鹏'],
+  ['Docker', '鲲鹏'], ['etcd', '鲲鹏'], ['Prometheus', '鲲鹏'], ['Grafana', '鲲鹏'],
+  ['Elasticsearch', '鲲鹏'], ['ClickHouse', '鲲鹏'], ['ZooKeeper', '鲲鹏'], ['Memcached', '鲲鹏'],
+  ['SQLite', '鲲鹏'], ['Julia', '鲲鹏'], ['R', '鲲鹏']
+];
+
+function fmtDate(d) {
+  const p = x => String(x).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function randDateMs() {
+  const s = new Date(2026, 4, 1).getTime(), e = new Date(2026, 8, 14).getTime();
+  return s + rnd() * (e - s);
+}
+function slugOf(name) { return name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+function ruleStr(domain, R) { return (domain === '昇腾' ? 'as-' : 'kp-') + '2026.0' + (R === SEEDED ? ri(5, 9) : riRt(5, 9)) + '.' + (R === SEEDED ? ri(1, 9) : riRt(1, 9)); }
+function urlPool(domain, slug) {
+  return [
+    'https://github.com/' + slug + '/actions',
+    'https://github.com/' + slug + '/releases',
+    domain === '昇腾' ? 'https://gitcode.com/Ascend/' + slug : 'https://gitee.com/openeuler/' + slug,
+    'https://pypi.org/project/' + slug + '/',
+    'https://hub.docker.com/r/openeuler/' + slug,
+    'https://github.com/' + slug + '/blob/main/README.md'
+  ];
+}
+/* 检查点集合生成：结论、判定依据、来源均挂在检查点级（PRD 4.0 检查点模型） */
+function genCheckpoints(domain, collected, slug, R) {
+  const pool = urlPool(domain, slug), used = new Set(), cps = [];
+  CHECK_ITEMS[domain].forEach(item => item.points.forEach(p => {
+    let conclusion = '未评估', basis = '该版本尚未采集，暂无判定依据。', sources = [];
+    if (collected) {
+      const ok = R.chance(p.type === 'passfail' ? 0.7 : 0.62);
+      conclusion = p.type === 'passfail' ? (ok ? '通过' : '不通过') : (ok ? '存在' : '不存在');
+      basis = BASIS[p.name][ok ? 'pos' : 'neg'];
+      const n = ok ? (R.chance(0.5) ? 2 : 1) : (R.chance(0.6) ? 1 : 0);
+      for (let k = 0; k < n; k++) {
+        const avail = pool.filter(u => !used.has(u));
+        if (!avail.length) break;
+        const u = avail[Math.floor(R.raw() * avail.length)];
+        used.add(u);
+        sources.push({ url: u, enabled: R.chance(0.85) });
+      }
+    }
+    cps.push({ name: p.name, type: p.type, conclusion, basis, sources });
+  }));
+  return cps;
+}
+function genData() {
+  return CATALOG.map((c, i) => {
+    const name = c[0], domain = c[1], slug = slugOf(name);
+    const sw = {
+      id: 'sw' + (i + 1), name, domain,
+      family: pick(FAMILIES),
+      aliases: [], whitelist: [],
+      level: '', levels: [], versions: []
+    };
+    if (chance(0.3)) sw.aliases.push(slug);
+    if (chance(0.15)) sw.aliases.push(slug + '-official');
+    /* 当前等级：昇腾四选一随机；鲲鹏随机 1~3 个或空数组（空=看板口径"不支持"） */
+    if (domain === '昇腾') {
+      sw.level = pick(LEVELS['昇腾']);
+    } else {
+      const opts = ['上游支持', '三方仓库支持', 'openEuler集成'].sort(() => rnd() - 0.5);
+      sw.levels = chance(0.2) ? [] : opts.slice(0, ri(1, 3));
+    }
+    /* 2~3 个版本，每版本含评估时间/采集状态/规则/目标层级（仅昇腾）/检查点 */
+    const vn = ri(2, 3), maj = ri(1, 6), min0 = ri(0, 12);
+    for (let k = 0; k < vn; k++) {
+      sw.versions.push({
+        ver: 'v' + maj + '.' + (min0 + k) + '.' + ri(0, 9),
+        evalTime: '', collected: chance(0.8),
+        rule: ruleStr(domain, SEEDED),
+        targetLevel: domain === '昇腾' ? pick(TARGET_LEVELS) : '',
+        checkpoints: []
+      });
+    }
+    sw.versions.reverse(); /* 最新版本在前 */
+    const t0 = randDateMs();
+    sw.versions.forEach((v, idx) => {
+      v.evalTime = fmtDate(new Date(t0 - idx * ri(15, 50) * 86400000));
+      v.checkpoints = genCheckpoints(domain, v.collected, slug, SEEDED);
+    });
+    sw.latestVersion = sw.versions[0].ver;
+    sw.lastEval = sw.versions[0].evalTime;
+    return sw;
+  });
+}
+let data = genData();
+let seqNo = 51;
+const find = id => data.find(s => s.id === id);
+
+/* ---------- 页面状态 ---------- */
+const state = {
+  applied: { name: '', domain: '', level: '', family: '' },
+  page: 1, pageSize: 20,
+  checked: new Set(),
+  expanded: new Set(),      /* 展开的软件行 */
+  expandedVer: new Set()    /* 展开的版本（key: swId|vi） */
+};
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+/* ================================================================
+ * PRD-001 支持等级分布看板（饼图，SVG 手绘；界面不展示口径文字）
+ * 口径（仅实现，不展示）：昇腾按单选直接统计；鲲鹏多选计入每个选中
+ * 等级，未选任何等级计入"不支持"
+ * ================================================================ */
+function levelCount(domain) {
+  const counts = {};
+  LEVELS[domain].forEach(l => counts[l] = 0);
+  let total = 0;
+  data.forEach(sw => {
+    if (sw.domain !== domain) return;
+    total++;
+    if (domain === '昇腾') {
+      counts[sw.level] = (counts[sw.level] || 0) + 1;
+    } else {
+      if (sw.levels.length === 0) counts['不支持']++;
+      else sw.levels.forEach(l => counts[l]++);
+    }
+  });
+  return { counts, total };
+}
+function pieSvg(entries, total, domain) {
+  const cx = 80, cy = 80, r = 70;
+  let paths = '';
+  const nonzero = entries.filter(e => e.value > 0);
+  if (nonzero.length === 1) {
+    paths = '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + nonzero[0].color + '"></circle>';
+  } else {
+    let a = -Math.PI / 2;
+    entries.forEach(e => {
+      if (e.value <= 0) return;
+      const a2 = a + (e.value / total) * 2 * Math.PI;
+      const x1 = (cx + r * Math.cos(a)).toFixed(2), y1 = (cy + r * Math.sin(a)).toFixed(2);
+      const x2 = (cx + r * Math.cos(a2)).toFixed(2), y2 = (cy + r * Math.sin(a2)).toFixed(2);
+      paths += '<path d="M' + cx + ' ' + cy + ' L' + x1 + ' ' + y1 + ' A' + r + ' ' + r + ' 0 ' + ((a2 - a) > Math.PI ? 1 : 0) + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + e.color + '" stroke="#fff" stroke-width="1"></path>';
+      a = a2;
+    });
+  }
+  return '<svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="' + domain + '支持等级分布饼图">' +
+    paths +
+    '<circle cx="' + cx + '" cy="' + cy + '" r="32" fill="#fff"></circle>' +
+    '<text x="' + cx + '" y="' + (cy - 2) + '" text-anchor="middle" font-size="20" font-weight="600" fill="#1f2329">' + total + '</text>' +
+    '<text x="' + cx + '" y="' + (cy + 16) + '" text-anchor="middle" font-size="12" fill="#646a73">软件总数</text></svg>';
+}
+function renderPie(container, domain) {
+  const { counts, total } = levelCount(domain);
+  /* 某领域 0 条数据时展示空状态 */
+  if (total === 0) {
+    container.innerHTML = '<div class="pie-head"><h3>' + domain + ' · 支持等级分布</h3></div><div class="empty">暂无' + domain + '软件数据</div>';
+    return;
+  }
+  const entries = LEVELS[domain].map(l => ({ label: l, value: counts[l], color: LEVEL_COLOR[l] }));
+  const legend = entries.map(e =>
+    '<li><span class="sw" style="background:' + e.color + '"></span><span>' + e.label + '</span><span class="num">' + e.value + '</span></li>'
+  ).join('');
+  container.innerHTML =
+    '<div class="pie-head"><h3>' + domain + ' · 支持等级分布</h3><span class="pie-total">共 ' + total + ' 个软件</span></div>' +
+    '<div class="pie-body">' + pieSvg(entries, total, domain) + '<ul class="legend">' + legend + '</ul></div>';
+}
+function renderKanban() {
+  renderPie(document.getElementById('pie-kp'), '鲲鹏');
+  renderPie(document.getElementById('pie-as'), '昇腾');
+}
+
+/* ================================================================
+ * PRD-002 / PRD-003 表格渲染与检索
+ * ================================================================ */
+function filtered() {
+  const f = state.applied;
+  return data.filter(sw => {
+    if (f.name && !sw.name.toLowerCase().includes(f.name.toLowerCase())) return false;
+    if (f.domain && sw.domain !== f.domain) return false;
+    if (f.family && sw.family !== f.family) return false;
+    if (f.level) {
+      if (sw.domain === '昇腾') {
+        if (sw.level !== f.level) return false;
+      } else {
+        if (f.level === '不支持') {
+          if (!(sw.levels.length === 0 || sw.levels.includes('不支持'))) return false;
+        } else if (!sw.levels.includes(f.level)) return false;
+      }
+    }
+    return true;
+  }).sort((a, b) => b.lastEval.localeCompare(a.lastEval) || a.name.localeCompare(b.name)); /* 默认按最近评估倒序 */
+}
+function levelTags(sw) {
+  if (sw.domain === '昇腾') return '<span class="tag ' + TAG_CLASS[sw.level] + '">' + sw.level + '</span>';
+  const ls = sw.levels.length ? sw.levels : ['不支持'];
+  return ls.map(l => '<span class="tag ' + TAG_CLASS[l] + '">' + l + '</span>').join('');
+}
+function cpCls(c) {
+  if (c === '通过' || c === '存在') return { dot: 'dot-g', txt: 'ok' };
+  if (c === '不通过' || c === '不存在') return { dot: 'dot-r', txt: 'bad' };
+  return { dot: 'dot-x', txt: 'na' };
+}
+function cpRowHtml(cp, swId, vi, cpIdx) {
+  const cls = cpCls(cp.conclusion);
+  /* v1.6：行内来源链接移除，改为"来源 (N)"按钮，点击打开只读来源弹窗（来源模型仍为 {链接,状态}） */
+  return '<div class="cp-row" data-basis="' + esc(cp.basis) + '">' +
+    '<span class="dot ' + cls.dot + '" aria-hidden="true"></span>' +
+    '<span class="cp-result ' + cls.txt + '">' + cp.conclusion + '</span>' +
+    '<span class="cp-name">' + esc(cp.name) + '</span>' +
+    '<button type="button" class="btn btn-sm cp-src-btn" data-act="src" data-id="' + swId + '" data-vi="' + vi + '" data-cp="' + cpIdx + '" aria-label="查看 ' + esc(cp.name) + ' 的来源">来源 (' + cp.sources.length + ')</button></div>';
+}
+/* 第三层：按检查项分组 + 状态点文字图例 */
+function checkpointAreaHtml(sw, v) {
+  let idx = 0;
+  const groups = CHECK_ITEMS[sw.domain].map(item => {
+    const rows = item.points.map(() => cpRowHtml(v.checkpoints[idx], sw.id, v._vi, idx++)).join('');
+    return '<div class="cp-group"><div class="cp-group-title">' + item.name + '</div>' + rows + '</div>';
+  }).join('');
+  return '<div class="cp-area">' +
+    '<div class="cp-legend">图例：<span class="dot dot-g" aria-hidden="true"></span>绿=通过/存在' +
+    '<span class="dot dot-r" aria-hidden="true"></span>红=不通过/不存在' +
+    '<span class="dot dot-x" aria-hidden="true"></span>灰=未评估</div>' +
+    groups + '</div>';
+}
+/* 第二层：版本行（浅灰卡片、缩进24；悬停整行显示"规则"） */
+function versionsHtml(sw) {
+  return sw.versions.map((v, vi) => {
+    const vkey = sw.id + '|' + vi;
+    const vexp = state.expandedVer.has(vkey);
+    v._vi = vi; /* v1.6：供来源弹窗定位检查点 */
+    const target = sw.domain === '昇腾'
+      ? '<span class="tag ' + TAG_CLASS[v.targetLevel] + '">目标层级：' + v.targetLevel + '</span>'
+      : '';
+    let h = '<div class="ver-card" data-rule="' + esc(v.rule) + '">' +
+      '<button type="button" class="expand-btn" data-act="toggle-ver" data-id="' + sw.id + '" data-vi="' + vi + '" aria-expanded="' + vexp + '" aria-label="' + (vexp ? '收起' : '展开') + '版本 ' + esc(v.ver) + ' 的检查点">' + (vexp ? '▾' : '▸') + '</button>' +
+      '<span class="ver-no mono">' + esc(v.ver) + '</span>' +
+      '<span class="ver-meta">评估时间：' + v.evalTime + '</span>' +
+      '<span class="' + (v.collected ? 'st-col' : 'st-uncol') + '">' + (v.collected ? '已采集' : '未采集') + '</span>' +
+      target +
+      '<span class="ver-hint">悬停查看规则</span></div>';
+    if (vexp) h += checkpointAreaHtml(sw, v);
+    return h;
+  }).join('');
+}
+/* 第一层：软件主行（白底，软件名字重 600） */
+function rowHtml(sw) {
+  const checked = state.checked.has(sw.id) ? 'checked' : '';
+  const exp = state.expanded.has(sw.id);
+  let html = '<tr class="sw-row" data-id="' + sw.id + '">' +
+    '<td><input type="checkbox" class="ck-row" data-id="' + sw.id + '" ' + checked + ' aria-label="选择 ' + esc(sw.name) + '"></td>' +
+    '<td><button type="button" class="expand-btn" data-act="toggle" data-id="' + sw.id + '" aria-expanded="' + exp + '" aria-label="' + (exp ? '收起' : '展开') + esc(sw.name) + ' 的子层级">' + (exp ? '▾' : '▸') + '</button></td>' +
+    '<td class="sw-name-cell"><button type="button" class="link-btn" data-act="edit-sw" data-id="' + sw.id + '" title="打开编辑软件弹窗">' + esc(sw.name) + '</button></td>' +
+    '<td>' + sw.domain + '</td>' +
+    '<td class="mono">' + esc(sw.latestVersion) + '</td>' +
+    '<td class="level-cell">' + levelTags(sw) + '</td>' +
+    '<td>' + sw.lastEval + '</td>' +
+    '<td><div class="ops">' +
+    '<button type="button" class="btn btn-sm" data-act="collect" data-id="' + sw.id + '">采集</button>' +
+    '<button type="button" class="btn btn-sm" data-act="edit-res" data-id="' + sw.id + '">编辑</button>' +
+    '<button type="button" class="btn btn-sm" data-act="whitelist" data-id="' + sw.id + '">白名单</button>' +
+    '<button type="button" class="btn btn-sm" data-act="alias" data-id="' + sw.id + '">别名</button>' +
+    '</div></td></tr>';
+  if (exp) html += '<tr class="sub-row"><td colspan="8">' + versionsHtml(sw) + '</td></tr>';
+  return html;
+}
+function updateSelInfo() {
+  document.getElementById('sel-info').textContent = '已勾选 ' + state.checked.size + ' 条';
+}
+function renderTable() {
+  const list = filtered();
+  const totalPages = Math.max(1, Math.ceil(list.length / state.pageSize));
+  if (state.page > totalPages) state.page = totalPages;
+  const rows = list.slice((state.page - 1) * state.pageSize, state.page * state.pageSize);
+  const tb = document.getElementById('tbody');
+  if (rows.length === 0) {
+    /* 空状态：提示 + 新增软件入口（检索无结果同样适用） */
+    tb.innerHTML = '<tr><td colspan="8"><div class="empty">没有符合条件的软件数据' +
+      '<p style="margin:8px 0 12px;font-size:12px">可调整检索条件，或新增一条软件记录</p>' +
+      '<button type="button" class="btn btn-primary" data-act="add">新增软件</button></div></td></tr>';
+  } else {
+    tb.innerHTML = rows.map(rowHtml).join('');
+  }
+  /* 表头全选框作用于当前过滤结果 */
+  const ckAll = document.getElementById('ck-all');
+  const allIds = list.map(s => s.id);
+  ckAll.checked = allIds.length > 0 && allIds.every(id => state.checked.has(id));
+  document.getElementById('page-info').textContent = '第 ' + state.page + ' / ' + totalPages + ' 页 · 共 ' + list.length + ' 条';
+  document.getElementById('pg-prev').disabled = state.page <= 1;
+  document.getElementById('pg-next').disabled = state.page >= totalPages;
+  document.getElementById('page-size').value = String(state.pageSize);
+  updateSelInfo();
+}
+function renderAll() {
+  renderKanban();
+  renderTable();
+}
+
+/* ---------- 检索区（PRD-003）：等级下拉按领域联动 ---------- */
+function buildLevelOptions(domain) {
+  const sel = document.getElementById('q-level');
+  const cur = sel.value;
+  let opts = '<option value="">全部等级</option>';
+  if (domain === '') {
+    opts += '<optgroup label="昇腾">' + ['原生支持', '基础支持', '新兴支持'].map(l => '<option value="' + l + '">' + l + '</option>').join('') + '</optgroup>';
+    opts += '<optgroup label="鲲鹏">' + ['上游支持', '三方仓库支持', 'openEuler集成'].map(l => '<option value="' + l + '">' + l + '</option>').join('') + '</optgroup>';
+    opts += '<option value="不支持">不支持</option>';
+  } else {
+    opts += LEVELS[domain].map(l => '<option value="' + l + '">' + l + '</option>').join('');
+  }
+  sel.innerHTML = opts;
+  sel.value = Array.prototype.some.call(sel.options, o => o.value === cur) ? cur : '';
+}
+function buildFamilyOptions() {
+  document.getElementById('q-family').innerHTML =
+    '<option value="">全部项目族</option>' + FAMILIES.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+  document.getElementById('sw-family').innerHTML =
+    '<option value="">未归属</option>' + FAMILIES.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+}
+function applySearch() {
+  state.applied = {
+    name: document.getElementById('q-name').value.trim(),
+    domain: document.getElementById('q-domain').value,
+    level: document.getElementById('q-level').value,
+    family: document.getElementById('q-family').value
+  };
+  state.page = 1;
+  renderTable();
+}
+function resetSearch() {
+  document.getElementById('q-name').value = '';
+  document.getElementById('q-domain').value = '';
+  document.getElementById('q-family').value = '';
+  buildLevelOptions('');
+  state.applied = { name: '', domain: '', level: '', family: '' };
+  state.page = 1;
+  renderTable();
+}
+
+/* ---------- 悬浮窗：单个固定定位 div，版本行显示规则、检查点行显示判定依据 ----------
+ * v1.6：文字可选中复制——鼠标移入浮窗内保持显示且不再跟随移动，移出浮窗才消失；
+ * 隐藏带 150ms 宽限期，避免指针从触发行移向浮窗途中被相邻行/间隙抢走 */
+const tip = document.getElementById('tooltip');
+let tipHideTimer = null;
+function scheduleHideTip() {
+  clearTimeout(tipHideTimer);
+  tipHideTimer = setTimeout(() => { tip.style.display = 'none'; }, 150);
+}
+function cancelHideTip() { clearTimeout(tipHideTimer); tipHideTimer = null; }
+function placeTip(e) {
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + 12, y = e.clientY + 14;
+  if (x + w > window.innerWidth - 8) x = e.clientX - w - 12;
+  if (y + h > window.innerHeight - 8) y = e.clientY - h - 10;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+function showTip(text, e) {
+  cancelHideTip();
+  tip.textContent = text;
+  tip.style.display = 'block';
+  placeTip(e);
+}
+document.addEventListener('mouseover', e => {
+  const t = e.target;
+  if (!t || !t.closest) return;
+  if (t.closest('#tooltip')) { cancelHideTip(); return; } /* 鼠标在浮窗内：保持显示，允许选中文字 */
+  const cp = t.closest('.cp-row');
+  const ver = cp ? null : t.closest('.ver-card');
+  if (cp) showTip(cp.dataset.basis || '暂无判定依据', e);
+  else if (ver) showTip('规则：' + ver.dataset.rule, e);
+  else scheduleHideTip();
+});
+document.addEventListener('mousemove', e => {
+  /* 鼠标在浮窗内时不重新定位，保持静止以便选中复制 */
+  if (tip.style.display === 'block' && !(e.target.closest && e.target.closest('#tooltip'))) placeTip(e);
+});
+tip.addEventListener('mouseenter', cancelHideTip);
+tip.addEventListener('mouseleave', scheduleHideTip);
+document.addEventListener('mouseleave', () => { scheduleHideTip(); });
+
+/* ---------- toast（右上角，成功/失败/警告） ---------- */
+function toast(msg, type) {
+  type = type || 'success';
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const title = type === 'success' ? '成功' : (type === 'error' ? '失败' : '提示');
+  t.innerHTML = '<span class="t-title">' + title + '</span><span>' + esc(msg) + '</span>';
+  wrap.appendChild(t);
+  setTimeout(() => { t.remove(); }, 3600);
+}
+
+/* ---------- 弹窗管理：遮罩/Esc 关闭，栈式管理 ---------- */
+const modalStack = [];
+function openOverlay(id) {
+  document.getElementById(id).classList.remove('hidden');
+  if (!modalStack.includes(id)) modalStack.push(id);
+}
+function closeOverlay(id) {
+  document.getElementById(id).classList.add('hidden');
+  const i = modalStack.indexOf(id);
+  if (i >= 0) modalStack.splice(i, 1);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && modalStack.length) closeOverlay(modalStack[modalStack.length - 1]);
+});
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('mousedown', e => { if (e.target === ov) closeOverlay(ov.id); });
+});
+/* 交互：点击弹窗右上角 × 或底部"取消/关闭"按钮关闭 */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-close]');
+  if (b) {
+    const ov = b.closest('.overlay');
+    if (ov) closeOverlay(ov.id);
+  }
+});
+
+/* ================================================================
+ * PRD-004 新增/编辑软件
+ * ================================================================ */
+let swEditId = null;
+let confirmCb = null;
+function openConfirm(title, msg, cb) {
+  document.getElementById('cf-title').textContent = title;
+  document.getElementById('cf-msg').textContent = msg;
+  confirmCb = cb;
+  openOverlay('ov-confirm');
+}
+document.getElementById('cf-ok').addEventListener('click', () => {
+  const cb = confirmCb;
+  confirmCb = null;
+  if (cb) cb();
+});
+function clearSwErrs() {
+  document.querySelectorAll('#sw-form .form-row').forEach(r => r.classList.remove('field-error'));
+  ['err-name', 'err-domain', 'err-ver', 'err-date'].forEach(id => document.getElementById(id).textContent = '');
+}
+function setSwErr(frId, errId, msg) {
+  document.getElementById(frId).classList.add('field-error');
+  document.getElementById(errId).textContent = msg;
+}
+function openSwModal(id) {
+  swEditId = id;
+  clearSwErrs();
+  const isEdit = !!id;
+  document.getElementById('sw-title').textContent = isEdit ? '编辑软件' : '新增软件';
+  document.getElementById('btn-sw-delete').hidden = !isEdit;
+  document.getElementById('sw-domain-note').hidden = !isEdit;
+  document.getElementById('sw-domain').disabled = isEdit; /* 领域保存后不可变更 */
+  if (isEdit) {
+    const sw = find(id);
+    document.getElementById('sw-name').value = sw.name;
+    document.getElementById('sw-domain').value = sw.domain;
+    document.getElementById('sw-family').value = sw.family;
+    document.getElementById('sw-ver').value = sw.latestVersion;
+    document.getElementById('sw-date').value = sw.lastEval;
+  } else {
+    document.getElementById('sw-name').value = '';
+    document.getElementById('sw-domain').value = '';
+    document.getElementById('sw-family').value = '';
+    document.getElementById('sw-ver').value = '';
+    document.getElementById('sw-date').value = TODAY; /* 最近评估默认当天 */
+  }
+  openOverlay('ov-sw');
+}
+function makeVersion(sw, ver, evalTime) {
+  return {
+    ver, evalTime, collected: false,
+    rule: ruleStr(sw.domain, RUNTIME),
+    targetLevel: sw.domain === '昇腾' ? pickRt(TARGET_LEVELS) : '',
+    checkpoints: genCheckpoints(sw.domain, false, slugOf(sw.name), RUNTIME)
+  };
+}
+function saveSw() {
+  clearSwErrs();
+  const name = document.getElementById('sw-name').value.trim();
+  const domain = document.getElementById('sw-domain').value;
+  const family = document.getElementById('sw-family').value;
+  const ver = document.getElementById('sw-ver').value.trim();
+  const date = document.getElementById('sw-date').value;
+  let firstErr = null;
+  const mark = (fr, er, msg) => { setSwErr(fr, er, msg); if (!firstErr) firstErr = fr; };
+  if (!name) mark('fr-name', 'err-name', '软件名为必填项');
+  else if (data.some(s => s.name === name && s.id !== swEditId)) mark('fr-name', 'err-name', '软件名已存在');
+  if (!swEditId && !domain) mark('fr-domain', 'err-domain', '请选择领域');
+  if (!ver) mark('fr-ver', 'err-ver', '最新版本为必填项');
+  if (!date) mark('fr-date', 'err-date', '最近评估为必填项');
+  if (firstErr) {
+    document.querySelector('#' + firstErr + ' input, #' + firstErr + ' select').focus();
+    return;
+  }
+  if (swEditId) {
+    const sw = find(swEditId);
+    sw.name = name; sw.family = family; sw.lastEval = date;
+    if (!sw.versions.some(v => v.ver === ver)) {
+      sw.versions.unshift(makeVersion(sw, ver, date));
+    }
+    sw.latestVersion = sw.versions[0].ver;
+    toast('保存成功', 'success');
+  } else {
+    /* 新增软件初始当前等级：昇腾"不支持"、鲲鹏"不支持"（空数组，看板口径一致） */
+    const sw = {
+      id: 'sw' + (seqNo++), name, domain, family,
+      aliases: [], whitelist: [],
+      level: domain === '昇腾' ? '不支持' : '',
+      levels: [],
+      versions: [], latestVersion: ver, lastEval: date
+    };
+    sw.versions.push(makeVersion(sw, ver, date));
+    data.push(sw);
+    toast('保存成功，已新增软件 ' + name, 'success');
+  }
+  closeOverlay('ov-sw');
+  renderAll();
+}
+document.getElementById('btn-sw-save').addEventListener('click', saveSw);
+/* 交互：删除软件需二次确认，删除同时移除其全部版本/检查点/来源 */
+document.getElementById('btn-sw-delete').addEventListener('click', () => {
+  const sw = find(swEditId);
+  if (!sw) return;
+  openConfirm('删除软件', '确认删除"' + sw.name + '"？其全部版本、检查项与来源将一并删除，删除后不可恢复。', () => {
+    data = data.filter(s => s.id !== swEditId);
+    state.checked.delete(swEditId);
+    state.expanded.delete(swEditId);
+    closeOverlay('ov-confirm');
+    closeOverlay('ov-sw');
+    renderAll();
+    toast('已删除软件 ' + sw.name, 'success');
+  });
+});
+
+/* ================================================================
+ * PRD-005 编辑检查结果/来源（版本 Tab + 检查点级结论/来源 + 当前等级）
+ * ================================================================ */
+let resCtx = null;
+function openResModal(id) {
+  const sw = find(id);
+  resCtx = {
+    swId: id, verIdx: 0, domain: sw.domain,
+    versions: JSON.parse(JSON.stringify(sw.versions)), /* 草稿，保存后生效 */
+    level: sw.domain === '昇腾' ? sw.level : '',
+    levels: sw.levels.slice()
+  };
+  document.getElementById('res-title').textContent = '编辑检查结果/来源 — ' + sw.name;
+  renderResTabs();
+  renderResBody();
+  openOverlay('ov-res');
+}
+function renderResTabs() {
+  document.getElementById('res-tabs').innerHTML = resCtx.versions.map((v, i) =>
+    '<button type="button" class="ver-tab ' + (i === resCtx.verIdx ? 'active' : '') + '" data-vi="' + i + '" role="tab" aria-selected="' + (i === resCtx.verIdx) + '">' + esc(v.ver) + '</button>'
+  ).join('');
+}
+function resCpHtml(cp, ci) {
+  const opts = cp.type === 'passfail' ? ['未评估', '通过', '不通过'] : ['未评估', '存在', '不存在'];
+  const sel = opts.map(o => '<option value="' + o + '" ' + (cp.conclusion === o ? 'selected' : '') + '>' + o + '</option>').join('');
+  const srcs = cp.sources.map((s, si) =>
+    '<div class="res-src-item" data-si="' + si + '">' +
+    '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url) + '</a>' +
+    '<span class="src-state ' + (s.enabled ? 'on' : 'off') + '">' + (s.enabled ? '启用' : '禁用') + '</span>' +
+    '<button type="button" class="btn btn-sm" data-srcact="toggle">' + (s.enabled ? '禁用' : '启用') + '</button>' +
+    '<button type="button" class="btn btn-sm btn-danger" data-srcact="del">删除</button></div>'
+  ).join('');
+  return '<div class="res-cp" data-ci="' + ci + '">' +
+    '<div class="res-cp-head"><span class="cp-name">' + esc(cp.name) + '</span>' +
+    '<label class="res-concl-label">结论 <select class="res-concl" data-ci="' + ci + '" aria-label="' + esc(cp.name) + ' 的结论">' + sel + '</select></label></div>' +
+    '<div class="res-src">' + (srcs || '<span class="src-state off">暂无来源</span>') +
+    '<div class="res-src-add"><input type="text" class="res-new-src" placeholder="输入新来源链接（https://…）" aria-label="' + esc(cp.name) + ' 的新来源链接">' +
+    '<button type="button" class="btn btn-sm" data-srcact="add">新增来源</button></div></div></div>';
+}
+function renderResBody() {
+  const sw = find(resCtx.swId);
+  const v = resCtx.versions[resCtx.verIdx];
+  let idx = 0;
+  const groups = CHECK_ITEMS[resCtx.domain].map(item => {
+    const rows = item.points.map(() => resCpHtml(v.checkpoints[idx], idx++)).join('');
+    return '<div class="res-group"><div class="res-group-title">' + item.name + '</div>' + rows + '</div>';
+  }).join('');
+  const levelHtml = resCtx.domain === '昇腾'
+    ? LEVELS['昇腾'].map(l => '<label><input type="radio" name="res-level" value="' + l + '" ' + (resCtx.level === l ? 'checked' : '') + '> ' + l + '</label>').join('')
+    : LEVELS['鲲鹏'].map(l => '<label><input type="checkbox" name="res-levels" value="' + l + '" ' + (resCtx.levels.includes(l) ? 'checked' : '') + '> ' + l + '</label>').join('');
+  const metaExtra = resCtx.domain === '昇腾' ? ' · 目标层级：' + v.targetLevel : '';
+  document.getElementById('res-body').innerHTML =
+    '<div class="rule-hint">结论修改保存后立即生效；来源启用/禁用状态变更不影响当前结论，仅在下次采集后按启用来源重新判定。</div>' +
+    '<div class="res-meta">版本 ' + esc(v.ver) + ' · 评估时间 ' + v.evalTime + ' · ' + (v.collected ? '已采集' : '未采集') + metaExtra + ' · 规则：' + esc(v.rule) + '</div>' +
+    groups +
+    '<div class="level-block"><h4>当前等级（' + (resCtx.domain === '昇腾' ? '昇腾 · 四选一' : '鲲鹏 · 四值多选') + '）</h4>' +
+    '<div class="level-opts">' + levelHtml + '</div></div>';
+}
+document.getElementById('res-tabs').addEventListener('click', e => {
+  const b = e.target.closest('.ver-tab');
+  if (!b || !resCtx) return;
+  resCtx.verIdx = +b.dataset.vi;
+  renderResTabs();
+  renderResBody();
+});
+document.getElementById('res-body').addEventListener('change', e => {
+  if (!resCtx) return;
+  if (e.target.classList.contains('res-concl')) {
+    resCtx.versions[resCtx.verIdx].checkpoints[+e.target.dataset.ci].conclusion = e.target.value;
+  } else if (e.target.name === 'res-level') {
+    resCtx.level = e.target.value;
+  } else if (e.target.name === 'res-levels') {
+    const v = e.target.value;
+    if (e.target.checked) { if (!resCtx.levels.includes(v)) resCtx.levels.push(v); }
+    else resCtx.levels = resCtx.levels.filter(x => x !== v);
+  }
+});
+document.getElementById('res-body').addEventListener('click', e => {
+  const b = e.target.closest('button[data-srcact]');
+  if (!b || !resCtx) return;
+  const cpEl = e.target.closest('.res-cp');
+  const ci = +cpEl.dataset.ci;
+  const cps = resCtx.versions[resCtx.verIdx].checkpoints;
+  if (b.dataset.srcact === 'add') {
+    const input = cpEl.querySelector('.res-new-src');
+    const url = input.value.trim();
+    if (!url) { toast('来源链接不能为空', 'warn'); return; }
+    cps[ci].sources.push({ url, enabled: true }); /* 新增来源默认启用 */
+    renderResBody();
+    return;
+  }
+  const item = e.target.closest('.res-src-item');
+  if (!item) return;
+  const si = +item.dataset.si;
+  if (b.dataset.srcact === 'toggle') cps[ci].sources[si].enabled = !cps[ci].sources[si].enabled;
+  if (b.dataset.srcact === 'del') cps[ci].sources.splice(si, 1);
+  renderResBody();
+});
+/* 交互：保存后结论与当前等级立即生效，表格与看板同步刷新 */
+document.getElementById('btn-res-save').addEventListener('click', () => {
+  const sw = find(resCtx.swId);
+  sw.versions = resCtx.versions;
+  if (sw.domain === '昇腾') sw.level = resCtx.level;
+  else sw.levels = resCtx.levels;
+  closeOverlay('ov-res');
+  renderAll();
+  toast('保存成功：检查结论与当前等级已生效', 'success');
+});
+
+/* ================================================================
+ * PRD-007 采集版本白名单
+ * ================================================================ */
+let wlId = null;
+function openWlModal(id) {
+  wlId = id;
+  renderWl();
+  openOverlay('ov-wl');
+}
+function renderWl() {
+  const sw = find(wlId);
+  document.getElementById('wl-title').textContent = '采集版本白名单 — ' + sw.name;
+  document.getElementById('wl-err').textContent = '';
+  document.getElementById('wl-list').innerHTML = sw.whitelist.length
+    ? sw.whitelist.map((v, i) =>
+        '<div class="list-item"><span class="mono">' + esc(v) + '</span><span class="list-note">待采集</span>' +
+        '<button type="button" class="btn btn-sm btn-danger" data-wli="' + i + '" aria-label="删除白名单版本 ' + esc(v) + '">删除</button></div>').join('')
+    : '<div class="empty-sm">暂无待采集版本</div>';
+}
+document.getElementById('wl-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const sw = find(wlId);
+  const input = document.getElementById('wl-input');
+  const err = document.getElementById('wl-err');
+  const v = input.value.trim();
+  if (!v) { err.textContent = '请输入版本号'; return; }
+  if (sw.whitelist.includes(v) || sw.versions.some(x => x.ver === v)) { err.textContent = '版本号已存在'; return; }
+  err.textContent = '';
+  sw.whitelist.push(v);
+  input.value = '';
+  renderWl();
+  toast('已新增白名单版本 ' + v + '，采集成功后进入子层级', 'success');
+});
+document.getElementById('wl-list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-wli]');
+  if (!b) return;
+  find(wlId).whitelist.splice(+b.dataset.wli, 1);
+  renderWl();
+});
+
+/* ================================================================
+ * PRD-008 别名管理（仅用于 GitHub 检索，不影响网站内容）
+ * ================================================================ */
+let aliasId = null;
+function openAliasModal(id) {
+  aliasId = id;
+  renderAlias();
+  openOverlay('ov-alias');
+}
+function renderAlias() {
+  const sw = find(aliasId);
+  document.getElementById('alias-title').textContent = '增加别名 — ' + sw.name;
+  document.getElementById('alias-err').textContent = '';
+  document.getElementById('alias-list').innerHTML = sw.aliases.length
+    ? sw.aliases.map((a, i) =>
+        '<div class="list-item"><span class="mono">' + esc(a) + '</span>' +
+        '<button type="button" class="btn btn-sm btn-danger" data-ali="' + i + '" aria-label="删除别名 ' + esc(a) + '">删除</button></div>').join('')
+    : '<div class="empty-sm">暂无别名</div>';
+}
+document.getElementById('alias-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const sw = find(aliasId);
+  const input = document.getElementById('alias-input');
+  const err = document.getElementById('alias-err');
+  const a = input.value.trim();
+  if (!a) { err.textContent = '请输入别名'; return; }
+  if (sw.aliases.includes(a)) { err.textContent = '别名已存在'; return; }
+  err.textContent = '';
+  sw.aliases.push(a);
+  input.value = '';
+  renderAlias();
+  toast('已新增别名 ' + a, 'success');
+});
+document.getElementById('alias-list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-ali]');
+  if (!b) return;
+  find(aliasId).aliases.splice(+b.dataset.ali, 1);
+  renderAlias();
+});
+
+/* ================================================================
+ * PRD-002（v1.6）来源弹窗：只读展示指定检查点的来源列表
+ * 来源模型仍为 {链接,状态}；每行标注"来源"二字；新增/启停/删除统一在编辑弹窗
+ * ================================================================ */
+function openSrcModal(id, vi, cpIdx) {
+  const sw = find(id);
+  const v = sw.versions[vi];
+  const cp = v.checkpoints[cpIdx];
+  document.getElementById('src-title').textContent = '来源 · ' + cp.name;
+  document.getElementById('src-body').innerHTML = cp.sources.length
+    ? cp.sources.map(s =>
+        '<div class="src-item"><span class="src-label">来源：</span>' +
+        '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url) + '</a>' +
+        '<span class="src-state ' + (s.enabled ? 'on' : 'off') + '">' + (s.enabled ? '启用' : '禁用') + '</span></div>').join('')
+    : '<div class="empty-sm">暂无来源</div>';
+  openOverlay('ov-src');
+}
+
+/* ================================================================
+ * PRD-006 采集与批量采集（模拟后端：约 700ms，约 85% 成功率）
+ * 同一软件可无限次采集；成功后重新随机生成全部版本检查点结论与来源
+ * ================================================================ */
+function countCp(sw) { return sw.domain === '昇腾' ? 7 : 9; }
+function applyCollectSuccess(sw) {
+  const now = TODAY;
+  /* 白名单版本成为新版本行（含全部检查点），随后清空白名单（PRD-007） */
+  if (sw.whitelist.length) {
+    sw.whitelist.forEach(wv => sw.versions.unshift({
+      ver: wv, evalTime: now, collected: true,
+      rule: ruleStr(sw.domain, RUNTIME),
+      targetLevel: sw.domain === '昇腾' ? pickRt(TARGET_LEVELS) : '',
+      checkpoints: genCheckpoints(sw.domain, true, slugOf(sw.name), RUNTIME)
+    }));
+    sw.whitelist = [];
+  }
+  sw.versions.forEach(v => {
+    v.collected = true;
+    v.evalTime = now;
+    v.checkpoints = genCheckpoints(sw.domain, true, slugOf(sw.name), RUNTIME);
+  });
+  sw.latestVersion = sw.versions[0].ver;
+  sw.lastEval = now; /* 最近评估随之更新 */
+}
+/* 交互：单软件采集——按钮进入"采集中…"加载态，约 700ms 后返回结果，用 toast 展示 */
+function collectOne(id, btn) {
+  btn.disabled = true;
+  btn.textContent = '采集中…';
+  setTimeout(() => {
+    const sw = find(id);
+    if (sw && Math.random() < 0.85) {
+      applyCollectSuccess(sw);
+      toast(sw.name + ' 采集成功：' + countCp(sw) + ' 个检查点结论已更新，最近评估刷新为 ' + TODAY, 'success');
+    } else if (sw) {
+      toast(sw.name + ' 采集失败：' + FAIL_REASONS[Math.floor(Math.random() * FAIL_REASONS.length)], 'error');
+    }
+    renderAll();
+  }, 700);
+}
+/* 交互：批量采集=勾选行后点击；未勾选给警告；结果弹窗列出每个软件的成功/失败 */
+function batchCollect() {
+  if (state.checked.size === 0) {
+    toast('未勾选任何软件，请先在表格中勾选行再执行批量采集', 'warn');
+    return;
+  }
+  const btn = document.getElementById('btn-batch');
+  btn.disabled = true;
+  btn.textContent = '采集中…';
+  const ids = Array.from(state.checked);
+  setTimeout(() => {
+    const results = [];
+    ids.forEach(id => {
+      const sw = find(id);
+      if (!sw) return;
+      if (Math.random() < 0.85) {
+        applyCollectSuccess(sw);
+        results.push({ name: sw.name, ok: true, msg: '采集成功：已更新 ' + countCp(sw) + ' 个检查点结论，最近评估刷新为 ' + TODAY });
+      } else {
+        results.push({ name: sw.name, ok: false, msg: '采集失败：' + FAIL_REASONS[Math.floor(Math.random() * FAIL_REASONS.length)] });
+      }
+    });
+    const okNum = results.filter(r => r.ok).length;
+    document.getElementById('batch-title').textContent = '批量采集结果（' + results.length + ' 个软件：成功 ' + okNum + '，失败 ' + (results.length - okNum) + '）';
+    document.getElementById('batch-body').innerHTML = results.map(r =>
+      '<div class="batch-item ' + (r.ok ? 'ok' : 'fail') + '"><span class="batch-name">' + esc(r.name) + '</span><span>' + (r.ok ? '✓ ' : '✕ ') + esc(r.msg) + '</span></div>'
+    ).join('');
+    openOverlay('ov-batch');
+    btn.disabled = false;
+    btn.textContent = '批量采集';
+    state.checked.clear();
+    renderAll();
+  }, 700);
+}
+
+/* ---------- 表格事件委托（展开/勾选/操作按钮） ---------- */
+function toggleExpand(id) {
+  if (state.expanded.has(id)) {
+    state.expanded.delete(id);
+    Array.from(state.expandedVer).forEach(k => { if (k.startsWith(id + '|')) state.expandedVer.delete(k); });
+  } else {
+    state.expanded.add(id);
+  }
+  renderTable();
+}
+function toggleVer(id, vi) {
+  const key = id + '|' + vi;
+  if (state.expandedVer.has(key)) state.expandedVer.delete(key);
+  else state.expandedVer.add(key);
+  renderTable();
+}
+document.getElementById('tbody').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (btn) {
+    const act = btn.dataset.act, id = btn.dataset.id;
+    if (act === 'toggle') toggleExpand(id);
+    else if (act === 'toggle-ver') toggleVer(id, +btn.dataset.vi);
+    else if (act === 'edit-sw') openSwModal(id);      /* 交互：软件名链接打开编辑软件弹窗 */
+    else if (act === 'collect') collectOne(id, btn);
+    else if (act === 'edit-res') openResModal(id);
+    else if (act === 'whitelist') openWlModal(id);
+    else if (act === 'alias') openAliasModal(id);
+    else if (act === 'src') openSrcModal(id, +btn.dataset.vi, +btn.dataset.cp); /* v1.6：检查点来源只读弹窗 */
+    else if (act === 'add') openSwModal(null);
+    return;
+  }
+  const ck = e.target.closest('.ck-row');
+  if (ck) {
+    if (ck.checked) state.checked.add(ck.dataset.id);
+    else state.checked.delete(ck.dataset.id);
+    updateSelInfo();
+    const list = filtered();
+    document.getElementById('ck-all').checked = list.length > 0 && list.every(s => state.checked.has(s.id));
+  }
+});
+/* 交互：表头全选框作用于当前过滤结果 */
+document.getElementById('ck-all').addEventListener('change', function () {
+  const list = filtered();
+  if (this.checked) list.forEach(s => state.checked.add(s.id));
+  else list.forEach(s => state.checked.delete(s.id));
+  renderTable();
+});
+
+/* ---------- 检索/分页/工具栏事件 ---------- */
+document.getElementById('search-form').addEventListener('submit', e => { e.preventDefault(); applySearch(); });
+document.getElementById('btn-reset').addEventListener('click', resetSearch);
+document.getElementById('q-domain').addEventListener('change', function () { buildLevelOptions(this.value); });
+document.getElementById('pg-prev').addEventListener('click', () => { if (state.page > 1) { state.page--; renderTable(); } });
+document.getElementById('pg-next').addEventListener('click', () => { state.page++; renderTable(); });
+document.getElementById('page-size').addEventListener('change', function () { state.pageSize = +this.value; state.page = 1; renderTable(); });
+document.getElementById('btn-add').addEventListener('click', () => openSwModal(null));
+document.getElementById('btn-batch').addEventListener('click', batchCollect);
+
+/* ---------- 初始化 ---------- */
+buildFamilyOptions();
+buildLevelOptions('');
+renderAll();
+</script>
+</body>
+</html>
